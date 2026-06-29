@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: bicicleta-service
+              uri: lb://ms3
+              predicates:
+                - Path=/api/v1/bicicletas/**, /api/v1/colores/**, /api/v1/modelos/**, /api/v1/marcas/**, /ms3/api-docs/**
+            - id: inventario-service
+              uri: lb://ms
+              predicates:
+                - Path=/api/v1/productos/**, /api/v1/repuesto/**, /api/v1/servicios/**, /ms/api-docs/**
+            - id: ventas-service
+              uri: lb://ms2
+              predicates:
+                - Path=/api/v1/boletas/**, /api/v1/tipoPago/**, /ms2/api-docs/**
+            - id: persona-service
+              uri: lb://ms4
+              predicates:
+                - Path=/api/v1/clientes/**, /api/v1/empleados/**, /ms4/api-docs/**
+
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+    urls:
+      - name: Microservicio Bicicleta (MS3)
+        url: /ms3/api-docs
+      - name: Microservicio Inventario (MS)
+        url: /ms/api-docs
+      - name: Microservicio Ventas (MS2)
+        url: /ms2/api-docs
+      - name: Microservicio Persona (MS4)
+        url: /ms4/api-docs
+  api-docs:
+    enabled: true

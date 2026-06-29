@@ -1,0 +1,16 @@
+-- Esquema inicial del microservicio de personas (db_persona)
+
+CREATE TABLE clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(30) NOT NULL,
+    apellidos VARCHAR(30) NOT NULL,
+    rut VARCHAR(255) NOT NULL,
+    correo VARCHAR(100) NOT NULL,
+    telefono VARCHAR(12) NOT NULL
+);
+
+CREATE TABLE empleados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(255) NOT NULL
+);
