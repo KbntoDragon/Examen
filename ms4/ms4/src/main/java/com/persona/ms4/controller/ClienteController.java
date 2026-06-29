@@ -66,22 +66,7 @@ public class ClienteController {
         }
     }
 
-    @GetMapping(value = "/nombres/{nombres}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Buscar Clientes por nombre", description = "Obtiene un listado de Clientes que existen con el nombre ingresado")
-    public ResponseEntity<?> buscarPorNombres(@PathVariable String nombres) {
-        List<EntityModel<ClienteDTO>> clientes = clienteService.buscarPorNombres(nombres).stream()
-              .map(assembler::toModel)
-              .collect(Collectors.toList());
-
-        if (clientes.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        return ResponseEntity.ok(CollectionModel.of(clientes,
-                linkTo(methodOn(ClienteController.class).buscarPorNombres(nombres)).withSelfRel(),
-                linkTo(methodOn(ClienteController.class).obtenerTodos()).withRel("clientes")));
-    }
-
+/* 
     @GetMapping(value = "/correos/{correos}", produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Buscar Clientes por correo", description = "Obtiene un listado de Clientes que existen con el correo ingresado")
     public ResponseEntity<?> buscraPorCorreos(@PathVariable String correos) {
@@ -97,7 +82,7 @@ public class ClienteController {
                 linkTo(methodOn(ClienteController.class).buscraPorCorreos(correos)).withSelfRel(),
                 linkTo(methodOn(ClienteController.class).obtenerTodos()).withRel("clientes")));
     }
-
+*/
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Agregar un Cliente al sistema", description = "Agrega un Cliente a la base de datos")
     public ResponseEntity<?> agregarCliente(@Valid @RequestBody Cliente cliente) {
@@ -108,17 +93,6 @@ public class ClienteController {
                 .body(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @DeleteMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Eliminar un Cliente", description = "Elimina un Cliente de la base de datos")
-    public ResponseEntity<?> eliminarCliente(@PathVariable Integer id) {
-        String resultado = clienteService.eliminar(id);
-        if (resultado.contains("exitosamente")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
     }
 

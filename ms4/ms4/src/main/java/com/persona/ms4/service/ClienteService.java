@@ -19,7 +19,7 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    public List<ClienteDTO> findAll() {
+    public List<ClienteDTO> obtenerTodos() {
         List<ClienteDTO> listaDTOs = new ArrayList<>();
         List<Cliente> clientesReales = clienteRepository.findAll();
         for (Cliente cli : clientesReales) {
@@ -73,4 +73,17 @@ public class ClienteService {
         return dto;
     }
 
+    public ClienteDTO actualizarCliente(Integer id, Cliente detallesActualizados) {
+        Cliente clienteExistente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se puede actualizar, el cliente no existe con el id: " + id));
+
+        // 2. Actualizar los campos con la nueva información
+        clienteExistente.setNombres(detallesActualizados.getNombres());
+        clienteExistente.setApellidos(detallesActualizados.getApellidos());
+        clienteExistente.setCorreo(detallesActualizados.getCorreo());
+        clienteExistente.setTelefono(detallesActualizados.getTelefono());
+
+        Cliente clienteActualizado = clienteRepository.save(clienteExistente);
+        return convertirADTO(clienteActualizado);
+    }
 }
