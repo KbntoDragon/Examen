@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BoletaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.ventas.ms2.service</a> &gt; <span class="el_source">BoletaService.java</span></div><h1>BoletaService.java</h1><pre class="source lang-java linenums">package com.ventas.ms2.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.ventas.ms2.DTO.BoletaDTO;
+import com.ventas.ms2.DTO.ProductoDTO;
+import com.ventas.ms2.model.Boleta;
+import com.ventas.ms2.repository.BoletaRepository;
+
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+
+@Service
+@Transactional
+<span class="fc" id="L22">@Slf4j</span>
+<span class="fc" id="L23">public class BoletaService {</span>
+
+    @Autowired
+    private BoletaRepository boletaRepository;
+
+    @Autowired
+    private WebClient.Builder webClientBuilder;
+
+    // URL base del microservicio de inventario (configurable por entorno)
+    @Value(&quot;${ms.inventario.url:http://localhost:8081}&quot;)
+    private String inventarioUrl;
+
+    public BoletaDTO convertirADTO(Boleta boleta) {
+<span class="fc" id="L36">        BoletaDTO dto = new BoletaDTO();</span>
+<span class="fc" id="L37">        dto.setId(boleta.getId());</span>
+<span class="fc" id="L38">        dto.setPrecio(boleta.getTotal());</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        dto.setTipoPago(boleta.getTipoPago() != null ? boleta.getTipoPago().getTipo() : null);</span>
+<span class="fc" id="L40">        dto.setEmpleadoId(boleta.getEmpleadoIds());</span>
+<span class="fc" id="L41">        dto.setProductoId(boleta.getProductoIds());</span>
+<span class="fc" id="L42">        dto.setRepuestoId(boleta.getRepuestoIds());</span>
+<span class="fc" id="L43">        dto.setServicioId(boleta.getServicioIds());</span>
+<span class="fc" id="L44">        return dto;</span>
+    }
+
+    public List&lt;BoletaDTO&gt; obtenerBoletas() {
+<span class="fc" id="L48">        log.info(&quot;Obteniendo todas las boletas&quot;);</span>
+<span class="fc" id="L49">        return boletaRepository.findAll().stream()</span>
+<span class="fc" id="L50">                .map(this::convertirADTO)</span>
+<span class="fc" id="L51">                .toList();</span>
+    }
+
+    public BoletaDTO buscarPorId(Integer id) {
+<span class="fc" id="L55">        Boleta boleta = boletaRepository.findById(id)</span>
+<span class="pc" id="L56">                .orElseThrow(() -&gt; new RuntimeException(&quot;Boleta no encontrada con id: &quot; + id));</span>
+<span class="nc" id="L57">        return convertirADTO(boleta);</span>
+    }
+
+    public Boleta guardarBoleta(Boleta boleta) {
+        // Regla de negocio: el total no puede ser nulo ni negativo
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        if (boleta.getTotal() == null || boleta.getTotal() &lt; 0) {</span>
+<span class="fc" id="L63">            throw new IllegalArgumentException(&quot;El total de la boleta no puede ser negativo&quot;);</span>
+        }
+<span class="fc" id="L65">        return boletaRepository.save(boleta);</span>
+    }
+
+    public String eliminar(Integer id) {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (!boletaRepository.existsById(id)) {</span>
+<span class="fc" id="L70">            return &quot;Boleta no encontrada con id: &quot; + id;</span>
+        }
+<span class="fc" id="L72">        boletaRepository.deleteById(id);</span>
+<span class="fc" id="L73">        return &quot;Boleta eliminada con exito&quot;;</span>
+    }
+
+    /**
+     * Comunicación REST entre microservicios: antes de agregar un producto a la
+     * boleta se consulta al microservicio de inventario para validar que existe.
+     * Si el inventario responde 4xx, se traduce a un error de negocio claro.
+     */
+    public Boleta agregarProducto(Integer boletaId, Integer productoId) {
+<span class="fc" id="L82">        Boleta boleta = boletaRepository.findById(boletaId)</span>
+<span class="fc" id="L83">                .orElseThrow(() -&gt; new RuntimeException(&quot;Boleta no encontrada con id: &quot; + boletaId));</span>
+
+<span class="fc" id="L85">        ProductoDTO producto = webClientBuilder.build().get()</span>
+<span class="fc" id="L86">                .uri(inventarioUrl + &quot;/api/v1/productos/{id}&quot;, productoId)</span>
+<span class="fc" id="L87">                .retrieve()</span>
+<span class="pc" id="L88">                .onStatus(status -&gt; status.is4xxClientError(),</span>
+<span class="nc" id="L89">                        resp -&gt; Mono.error(new RuntimeException(</span>
+                                &quot;El producto &quot; + productoId + &quot; no existe en el inventario&quot;)))
+<span class="fc" id="L91">                .bodyToMono(ProductoDTO.class)</span>
+<span class="fc" id="L92">                .block();</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (producto == null) {</span>
+<span class="nc" id="L95">            throw new RuntimeException(&quot;No se pudo obtener el producto &quot; + productoId + &quot; del inventario&quot;);</span>
+        }
+
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (boleta.getProductoIds() == null) {</span>
+<span class="nc" id="L99">            boleta.setProductoIds(new ArrayList&lt;&gt;());</span>
+        }
+<span class="fc" id="L101">        boleta.getProductoIds().add(productoId);</span>
+<span class="fc" id="L102">        return boletaRepository.save(boleta);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

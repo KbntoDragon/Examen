@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+,com.ventas.ms2.service,BoletaService,28,160,3,9,4,36,5,13,2,10
+,com.ventas.ms2.service,TipoPagoService,15,66,2,4,2,16,2,8,0,7
+,com.ventas.ms2.assemblers,BoletaAssembler,44,3,0,0,4,1,1,1,1,1
+,com.ventas.ms2.assemblers,TipoPagoAssembler,30,3,0,0,3,1,1,1,1,1
+,com.ventas.ms2.controller,TipoPagoController,0,91,0,2,0,19,0,5,0,4
+,com.ventas.ms2.controller,BoletaController,24,108,0,2,6,20,0,7,0,6

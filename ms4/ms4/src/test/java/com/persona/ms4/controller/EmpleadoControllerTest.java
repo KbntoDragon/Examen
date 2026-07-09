@@ -1,6 +1,8 @@
 package com.persona.ms4.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -10,9 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 
 import com.persona.ms4.DTO.EmpleadoDTO;
+import com.persona.ms4.assemblers.EmpleadoModelAssembler;
 import com.persona.ms4.modelo.Empleado;
 import com.persona.ms4.service.EmpleadoService;
 
@@ -22,6 +26,9 @@ class EmpleadoControllerTest {
     @Mock
     private EmpleadoService empleadoService;
 
+    @Mock
+    private EmpleadoModelAssembler assembler;
+
     @InjectMocks
     private EmpleadoController empleadoController;
 
@@ -30,6 +37,12 @@ class EmpleadoControllerTest {
         d.setId(1);
         d.setNombres("Carla");
         return d;
+    }
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        lenient().when(assembler.toModel(any(EmpleadoDTO.class)))
+                 .thenAnswer(inv -> EntityModel.of((EmpleadoDTO) inv.getArgument(0)));
     }
 
     @Test

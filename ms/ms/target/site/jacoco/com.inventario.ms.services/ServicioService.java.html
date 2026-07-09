@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ServicioService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.inventario.ms.services</a> &gt; <span class="el_source">ServicioService.java</span></div><h1>ServicioService.java</h1><pre class="source lang-java linenums">package com.inventario.ms.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.inventario.ms.DTO.ServicioDTO;
+import com.inventario.ms.model.Servicio;
+import com.inventario.ms.repository.ServicioRepository;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Transactional
+<span class="fc" id="L17">@Slf4j</span>
+<span class="fc" id="L18">public class ServicioService {</span>
+
+    @Autowired
+    private ServicioRepository servicioRepository;
+
+    private ServicioDTO convertirADTO(Servicio servicio) {
+<span class="fc" id="L24">        ServicioDTO dto = new ServicioDTO();</span>
+<span class="fc" id="L25">        dto.setId(servicio.getId());</span>
+<span class="fc" id="L26">        dto.setNombreServicio(servicio.getNombreServicio());</span>
+<span class="fc" id="L27">        dto.setDescServicio(servicio.getDescServicio());</span>
+<span class="fc" id="L28">        dto.setValorDelServicio(servicio.getValorDelServicio());</span>
+<span class="fc" id="L29">        dto.setBoleta_id(servicio.getBoleta_id());</span>
+<span class="fc" id="L30">        return dto;</span>
+    }
+
+    public List&lt;ServicioDTO&gt; obtenerServicios() {
+<span class="fc" id="L34">        log.info(&quot;Obteniendo todos los servicios&quot;);</span>
+<span class="fc" id="L35">        return servicioRepository.findAll().stream()</span>
+<span class="fc" id="L36">                .map(this::convertirADTO)</span>
+<span class="fc" id="L37">                .toList();</span>
+    }
+
+    public List&lt;ServicioDTO&gt; buscarPorNombreDTO(String nombre) {
+<span class="nc" id="L41">        return servicioRepository.findByNombreServicioContainingIgnoreCase(nombre).stream()</span>
+<span class="nc" id="L42">                .map(this::convertirADTO)</span>
+<span class="nc" id="L43">                .toList();</span>
+    }
+
+    public ServicioDTO obtenerServicioDTOPorId(Integer id) {
+<span class="fc" id="L47">        Servicio servicio = servicioRepository.findById(id)</span>
+<span class="pc" id="L48">                .orElseThrow(() -&gt; new RuntimeException(&quot;Servicio no encontrado con id: &quot; + id));</span>
+<span class="nc" id="L49">        return convertirADTO(servicio);</span>
+    }
+
+    public Servicio guardarServicio(Servicio servicio) {
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">        if (servicio.getValorDelServicio() == null || servicio.getValorDelServicio() &lt;= 0) {</span>
+<span class="fc" id="L54">            throw new IllegalArgumentException(&quot;El valor del servicio debe ser mayor a 0&quot;);</span>
+        }
+<span class="fc" id="L56">        return servicioRepository.save(servicio);</span>
+    }
+
+    public String eliminarServicio(Integer id) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (!servicioRepository.existsById(id)) {</span>
+<span class="fc" id="L61">            return &quot;Servicio no encontrado con id: &quot; + id;</span>
+        }
+<span class="nc" id="L63">        servicioRepository.deleteById(id);</span>
+<span class="nc" id="L64">        return &quot;Servicio eliminado con exito&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

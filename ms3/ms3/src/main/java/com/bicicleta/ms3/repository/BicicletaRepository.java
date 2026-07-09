@@ -13,5 +13,5 @@ public interface BicicletaRepository extends JpaRepository<Bicicleta, Integer> {
     List<Bicicleta> findByClienteId(Integer clienteId);
     List<Bicicleta> findByModeloId(Integer modeloId);
     List<Bicicleta> findByMaterial(String material);
-    List<Bicicleta> findByMarcasId(Integer marcaId);  
+    List<Bicicleta> findByMarcaId(Integer marcaId);
 }

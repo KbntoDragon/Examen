@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.inventario.ms.controller</a> &gt; <span class="el_source">ProductoController.java</span></div><h1>ProductoController.java</h1><pre class="source lang-java linenums">package com.inventario.ms.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.inventario.ms.DTO.ProductoDTO;
+import com.inventario.ms.model.Producto;
+import com.inventario.ms.services.ProductoService;
+import com.inventario.ms.assemblers.ProductoAssembler;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping(&quot;/api/v1/productos&quot;)
+@Tag(name = &quot;Productos&quot;, description = &quot;Gestión de productos del inventario&quot;)
+<span class="fc" id="L36">public class ProductoController {</span>
+    @Autowired
+    private ProductoService productoService;
+
+    @Autowired
+    private ProductoAssembler assembler;
+
+    //Listar
+    @Operation(summary = &quot;Listar todos los productos&quot;,
+               description = &quot;Devuelve la lista completa de productos. Responde 204 si no hay ninguno.&quot;)
+    @ApiResponses({
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Lista de productos encontrada&quot;),
+        @ApiResponse(responseCode = &quot;204&quot;, description = &quot;No hay productos registrados&quot;)
+    })
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; listarProductos() {
+<span class="fc" id="L52">        List&lt;ProductoDTO&gt; productos = productoService.obtenerProductos();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (productos.isEmpty()) {</span>
+<span class="fc" id="L54">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+        }
+
+<span class="fc" id="L57">        List&lt;EntityModel&lt;ProductoDTO&gt;&gt; productoModels = productos.stream()</span>
+<span class="fc" id="L58">                .map(assembler::toModel)</span>
+<span class="fc" id="L59">                .collect(Collectors.toList());</span>
+
+<span class="fc" id="L61">        CollectionModel&lt;EntityModel&lt;ProductoDTO&gt;&gt; collectionModel = CollectionModel.of(productoModels,</span>
+<span class="fc" id="L62">                linkTo(methodOn(ProductoController.class).listarProductos()).withSelfRel());</span>
+
+<span class="fc" id="L64">        return new ResponseEntity&lt;&gt;(collectionModel, HttpStatus.OK);</span>
+    }
+    //Buscar id
+    @Operation(summary = &quot;Buscar producto por id&quot;)
+    @ApiResponses({
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Producto encontrado&quot;),
+        @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Producto no existe&quot;)
+    })
+    @GetMapping(value = &quot;/{id}&quot;, produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; buscarProductoPorId(@PathVariable Integer id) {
+        try {
+<span class="fc" id="L75">            ProductoDTO producto = productoService.obtenerProductoDTOPorId(id);</span>
+<span class="fc" id="L76">            return ResponseEntity.ok(assembler.toModel(producto));</span>
+<span class="fc" id="L77">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L78">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+    //Buscar por codigobarra
+    @Operation(summary = &quot;Buscar productos por código de barras&quot;)
+    @GetMapping(value = &quot;/codigo/{codigoBarra}&quot;, produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; buscarPorCodigoBarra(@PathVariable String codigoBarra) {
+        try{
+<span class="fc" id="L86">            List&lt;ProductoDTO&gt; productos = productoService.buscarPorCodigoDeBarraDTO(codigoBarra);</span>
+<span class="fc" id="L87">            List&lt;EntityModel&lt;ProductoDTO&gt;&gt; productoModels = productos.stream()</span>
+<span class="fc" id="L88">                    .map(assembler::toModel)</span>
+<span class="fc" id="L89">                    .collect(Collectors.toList());</span>
+<span class="fc" id="L90">            CollectionModel&lt;EntityModel&lt;ProductoDTO&gt;&gt; collectionModel = CollectionModel.of(productoModels,</span>
+<span class="fc" id="L91">                    linkTo(methodOn(ProductoController.class).buscarPorCodigoBarra(codigoBarra)).withSelfRel());</span>
+<span class="fc" id="L92">            return new ResponseEntity&lt;&gt;(collectionModel, HttpStatus.OK);</span>
+<span class="nc" id="L93">        } catch (RuntimeException e){</span>
+<span class="nc" id="L94">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+    //guardar producto
+    @Operation(summary = &quot;Crear un producto&quot;,
+               description = &quot;Valida que el precio sea mayor a 0 y el stock no sea negativo.&quot;)
+    @ApiResponses({
+        @ApiResponse(responseCode = &quot;201&quot;, description = &quot;Producto creado&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Datos inválidos (precio o stock)&quot;)
+    })
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; guardarProducto(@RequestBody Producto producto) {
+       try {
+<span class="fc" id="L107">         Producto producto2 = productoService.guardarProducto(producto);</span>
+<span class="fc" id="L108">         ProductoDTO dto = productoService.obtenerProductoDTOPorId(producto2.getId());</span>
+<span class="fc" id="L109">         return new ResponseEntity&lt;&gt;(assembler.toModel(dto), HttpStatus.CREATED);</span>
+<span class="fc" id="L110">       } catch (Exception e) {</span>
+<span class="fc" id="L111">            return new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);</span>
+       }
+    }
+    //eliminar por id
+    @Operation(summary = &quot;Eliminar producto por id&quot;)
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;String&gt; eliminarProducto(@PathVariable Integer id) {
+<span class="fc" id="L118">        String resultado = productoService.eliminarProducto(id);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (resultado.contains(&quot;exito&quot;)) {</span>
+<span class="fc" id="L120">            return new ResponseEntity&lt;&gt;(resultado,HttpStatus.OK);</span>
+        }else{
+<span class="fc" id="L122">            return new ResponseEntity&lt;&gt;(resultado, HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    //buscar por nombre
+    @Operation(summary = &quot;Buscar productos por nombre (contiene, ignora mayúsculas)&quot;)
+    @GetMapping(value = &quot;/buscar&quot;, produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; buscarPorNombre(@RequestParam String nombre){
+<span class="fc" id="L130">        List&lt;ProductoDTO&gt; productos = productoService.buscarPorNombreDTO(nombre);</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if(productos.isEmpty()){</span>
+<span class="fc" id="L132">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+        }
+<span class="nc" id="L134">        List&lt;EntityModel&lt;ProductoDTO&gt;&gt; productoModels = productos.stream()</span>
+<span class="nc" id="L135">                .map(assembler::toModel)</span>
+<span class="nc" id="L136">                .collect(Collectors.toList());</span>
+<span class="nc" id="L137">        CollectionModel&lt;EntityModel&lt;ProductoDTO&gt;&gt; collectionModel = CollectionModel.of(productoModels,</span>
+<span class="nc" id="L138">                linkTo(methodOn(ProductoController.class).buscarPorNombre(nombre)).withSelfRel());</span>
+<span class="nc" id="L139">        return new ResponseEntity&lt;&gt;(collectionModel, HttpStatus.OK);</span>
+    }
+
+    //sin Stock
+    @Operation(summary = &quot;Listar productos sin stock&quot;)
+    @GetMapping(value = &quot;/sin-stock&quot;, produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; sinStock() {
+<span class="fc" id="L146">        List&lt;ProductoDTO&gt; productos = productoService.obtenerProductoSinStockDTO();</span>
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (productos == null || productos.isEmpty()) {</span>
+<span class="nc" id="L148">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+        }
+<span class="fc" id="L150">        List&lt;EntityModel&lt;ProductoDTO&gt;&gt; productoModels = productos.stream()</span>
+<span class="fc" id="L151">                .map(assembler::toModel)</span>
+<span class="fc" id="L152">                .collect(Collectors.toList());</span>
+<span class="fc" id="L153">        CollectionModel&lt;EntityModel&lt;ProductoDTO&gt;&gt; collectionModel = CollectionModel.of(productoModels,</span>
+<span class="fc" id="L154">                linkTo(methodOn(ProductoController.class).sinStock()).withSelfRel());</span>
+<span class="fc" id="L155">        return new ResponseEntity&lt;&gt;(collectionModel, HttpStatus.OK);</span>
+    }
+
+    //actualizar
+    @Operation(summary = &quot;Actualizar un producto existente&quot;)
+    @PatchMapping(value = &quot;/{id}&quot;, produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity&lt;?&gt; editarProducto(@PathVariable Integer id, @RequestBody Producto producto){
+        try {
+<span class="fc" id="L163">            Producto editado = productoService.guardarProducto(producto);</span>
+<span class="fc" id="L164">            ProductoDTO dto = productoService.obtenerProductoDTOPorId(editado.getId());</span>
+<span class="fc" id="L165">            return ResponseEntity.ok(assembler.toModel(dto));</span>
+<span class="nc" id="L166">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L167">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

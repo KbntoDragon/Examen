@@ -19,7 +19,7 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    public List<ClienteDTO> obtenerTodos() {
+    public List<ClienteDTO> findAll() {
         List<ClienteDTO> listaDTOs = new ArrayList<>();
         List<Cliente> clientesReales = clienteRepository.findAll();
         for (Cliente cli : clientesReales) {

@@ -69,7 +69,7 @@ public class EmpleadoService {
         return null;
     }
 
-    private EmpleadoDTO convertirADTO(Empleado empleado) {
+    public EmpleadoDTO convertirADTO(Empleado empleado) {
         EmpleadoDTO dto = new EmpleadoDTO();
         dto.setId(empleado.getId());
         dto.setNombres(empleado.getNombres());

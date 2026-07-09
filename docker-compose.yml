@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  mariadb-db:
+    image: mariadb:10.11
+    container_name: mariadb-db
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - network-taller
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  eureka-server:
+    build: ./eureka/eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - network-taller
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api-gateway:
+    build: ./gateway/gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - network-taller
+
+  inventario-service:
+    build: ./ms/ms
+    container_name: inventario-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mariadb-db:3306/db_producto_prod?createDatabaseIfNotExist=true
+      DB_USER: root
+      DB_PASSWORD: ""
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - network-taller
+
+  ventas-service:
+    build: ./ms2/ms2
+    container_name: ventas-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mariadb-db:3306/db_ventas_prod?createDatabaseIfNotExist=true
+      DB_USER: root
+      DB_PASSWORD: ""
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - network-taller
+
+  bicicleta-service:
+    build: ./ms3/ms3
+    container_name: bicicleta-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mariadb-db:3306/db_bicicleta_prod?createDatabaseIfNotExist=true
+      DB_USER: root
+      DB_PASSWORD: ""
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - network-taller
+
+  persona-service:
+    build: ./ms4/ms4
+    container_name: persona-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mariadb-db:3306/db_persona_prod?createDatabaseIfNotExist=true
+      DB_USER: root
+      DB_PASSWORD: ""
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - network-taller
+
+networks:
+  network-taller:
+    driver: bridge
+
+volumes:
+  mariadb_data:

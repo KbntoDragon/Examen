@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RepuestoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.inventario.ms.services</a> &gt; <span class="el_source">RepuestoService.java</span></div><h1>RepuestoService.java</h1><pre class="source lang-java linenums">package com.inventario.ms.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.inventario.ms.DTO.RepuestoDTO;
+import com.inventario.ms.model.Repuesto;
+import com.inventario.ms.repository.RepuestoRepository;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Transactional
+<span class="fc" id="L17">@Slf4j</span>
+<span class="fc" id="L18">public class RepuestoService {</span>
+
+    @Autowired
+    private RepuestoRepository repuestoRepository;
+
+    private RepuestoDTO convertirADTO(Repuesto repuesto) {
+<span class="fc" id="L24">        RepuestoDTO dto = new RepuestoDTO();</span>
+<span class="fc" id="L25">        dto.setId(repuesto.getId());</span>
+<span class="fc" id="L26">        dto.setNombreRepuesto(repuesto.getNombreRepuesto());</span>
+<span class="fc" id="L27">        dto.setPrecio(repuesto.getPrecio());</span>
+<span class="fc" id="L28">        dto.setStockRepuesto(repuesto.getStockRepuesto());</span>
+<span class="fc" id="L29">        dto.setCodigoBarras(repuesto.getCodigoBarras());</span>
+<span class="fc" id="L30">        dto.setBoleta_id(repuesto.getBoleta_id());</span>
+<span class="fc" id="L31">        return dto;</span>
+    }
+
+    public List&lt;RepuestoDTO&gt; obtenerRepuestos() {
+<span class="fc" id="L35">        log.info(&quot;Obteniendo todos los repuestos&quot;);</span>
+<span class="fc" id="L36">        return repuestoRepository.findAll().stream()</span>
+<span class="fc" id="L37">                .map(this::convertirADTO)</span>
+<span class="fc" id="L38">                .toList();</span>
+    }
+
+    public RepuestoDTO obtenerRepuestoDTOPorId(Integer id) {
+<span class="fc" id="L42">        Repuesto repuesto = repuestoRepository.findById(id)</span>
+<span class="pc" id="L43">                .orElseThrow(() -&gt; new RuntimeException(&quot;Repuesto no encontrado con id: &quot; + id));</span>
+<span class="nc" id="L44">        return convertirADTO(repuesto);</span>
+    }
+
+    public List&lt;RepuestoDTO&gt; buscarPorCodigoBarraDTO(String codigoBarra) {
+<span class="nc" id="L48">        return repuestoRepository.findByCodigoBarras(codigoBarra).stream()</span>
+<span class="nc" id="L49">                .map(this::convertirADTO)</span>
+<span class="nc" id="L50">                .toList();</span>
+    }
+
+    public List&lt;RepuestoDTO&gt; buscarPorNombreDTO(String nombre) {
+<span class="nc" id="L54">        return repuestoRepository.findByNombreRepuestoContainingIgnoreCase(nombre).stream()</span>
+<span class="nc" id="L55">                .map(this::convertirADTO)</span>
+<span class="nc" id="L56">                .toList();</span>
+    }
+
+    public List&lt;RepuestoDTO&gt; obtenerRepuestosSinStockDTO() {
+<span class="fc" id="L60">        return repuestoRepository.findByStockRepuesto(0).stream()</span>
+<span class="fc" id="L61">                .map(this::convertirADTO)</span>
+<span class="fc" id="L62">                .toList();</span>
+    }
+
+    public Repuesto guardarRepuesto(Repuesto repuesto) {
+<span class="pc bpc" id="L66" title="1 of 4 branches missed.">        if (repuesto.getPrecio() == null || repuesto.getPrecio() &lt;= 0) {</span>
+<span class="fc" id="L67">            throw new IllegalArgumentException(&quot;El precio debe ser mayor a 0&quot;);</span>
+        }
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">        if (repuesto.getStockRepuesto() == null || repuesto.getStockRepuesto() &lt; 0) {</span>
+<span class="nc" id="L70">            throw new IllegalArgumentException(&quot;El stock no puede ser negativo&quot;);</span>
+        }
+<span class="fc" id="L72">        return repuestoRepository.save(repuesto);</span>
+    }
+
+    public String eliminarRepuesto(Integer id) {
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (!repuestoRepository.existsById(id)) {</span>
+<span class="nc" id="L77">            return &quot;Repuesto no encontrado con id: &quot; + id;</span>
+        }
+<span class="fc" id="L79">        repuestoRepository.deleteById(id);</span>
+<span class="fc" id="L80">        return &quot;Repuesto eliminado con exito&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

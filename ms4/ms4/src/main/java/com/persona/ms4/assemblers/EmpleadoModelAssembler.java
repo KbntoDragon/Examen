@@ -15,8 +15,8 @@ public class EmpleadoModelAssembler implements RepresentationModelAssembler<Empl
     @Override
     public EntityModel<EmpleadoDTO> toModel(EmpleadoDTO empleado) {
         return EntityModel.of(empleado,
-            linkTo(methodOn(EmpleadoController.class).buscarPorId(empleado.getId())).withSelfRel(),
-            linkTo(methodOn(EmpleadoController.class).obtenerTodos()).withRel("empleados"),
+            linkTo(methodOn(EmpleadoController.class).porId(empleado.getId())).withSelfRel(),
+            linkTo(methodOn(EmpleadoController.class).todos()).withRel("empleados"),
             linkTo(methodOn(EmpleadoController.class).eliminarEmpleado(empleado.getId())).withRel("Eliminar"),
             linkTo(methodOn(EmpleadoController.class).actualizarEmpleado(empleado.getId(), null)).withRel("Actualizar"));
 

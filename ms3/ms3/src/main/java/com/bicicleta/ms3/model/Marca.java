@@ -31,6 +31,6 @@ public class Marca {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @OneToMany(mappedBy = "marcas")
+    @OneToMany(mappedBy = "marca")
     private List<Bicicleta> bicicletas;
 }

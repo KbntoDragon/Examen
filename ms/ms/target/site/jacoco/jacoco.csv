@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+,com.inventario.ms.services,RepuestoService,35,110,4,6,9,26,6,10,2,9
+,com.inventario.ms.services,ProductoService,10,135,2,8,3,32,3,13,1,10
+,com.inventario.ms.services,ServicioService,23,85,2,4,6,20,3,9,1,8
+,com.inventario.ms.assemblers,RepuestoAssembler,59,3,0,0,5,1,1,1,1,1
+,com.inventario.ms.assemblers,ProductoAssembler,59,3,0,0,5,1,1,1,1,1
+,com.inventario.ms.assemblers,ServicioAssembler,59,3,0,0,5,1,1,1,1,1
+,com.inventario.ms.controller,ProductoController,51,227,3,7,11,44,3,11,0,9
+,com.inventario.ms.controller,RepuestoController,51,227,3,7,11,44,3,11,0,9
+,com.inventario.ms.controller,ServicioController,48,136,2,4,9,28,2,8,0,7

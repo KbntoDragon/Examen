@@ -35,7 +35,11 @@ public class Bicicleta {
     
     
     @ManyToMany
-    @JoinColumn(name = "marca_id") 
+    @JoinTable(
+        name = "bicicleta_color",
+        joinColumns = @JoinColumn(name = "bicicleta_id"),
+        inverseJoinColumns = @JoinColumn(name = "color_id")
+    )
     private List<Color> colores;
 
     @ManyToOne
