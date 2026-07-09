@@ -21,12 +21,10 @@ public class ModeloService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-     //CRUD guardar,listar,buscar,eliminar,actualizar
-    //guardar
     public Modelo guardarModelo(Modelo modelo){
         return modeloRepository.save(modelo);
-    }//guardar
-    //pasar a usar el modeloDTO
+    }
+
     private ModeloDTO convertirADTO(Modelo modelo){
         ModeloDTO dto = new ModeloDTO();
         dto.setId(modelo.getId());
@@ -39,21 +37,18 @@ public class ModeloService {
         }
         return dto;
     }
-    //listar
     public List<ModeloDTO> obtenerModelos(){
         return modeloRepository.findAll().stream()
         .map(this::convertirADTO)
         .toList();
-    }//listar
+    }
 
-    //buscar por id
     public ModeloDTO obtenerModeloPorId(Integer id){
         Modelo modelo = modeloRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Modelo no encontrado"));
         return convertirADTO(modelo);
-    }//buscar por id
+    }
 
-    //eliminar
     public String eliminarModelo(Integer id){
         try {
             Modelo modelo = modeloRepository.findById(id)
@@ -63,9 +58,8 @@ public class ModeloService {
         } catch (RuntimeException e) {
             return e.getMessage();
         }
-    }//eliminar
+    }
 
-    //actualizar **ver si esta bien
     public Modelo actualizarModelo(Integer id, Modelo modeloActualizado) {
         Modelo modelo = modeloRepository.findById(id).orElseThrow(() -> new RuntimeException("¡No se encuentra ese modelo!"));
         if(modelo != null) {

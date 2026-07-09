@@ -77,7 +77,6 @@ public class ClienteService {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se puede actualizar, el cliente no existe con el id: " + id));
 
-        // 2. Actualizar los campos con la nueva información
         clienteExistente.setNombres(detallesActualizados.getNombres());
         clienteExistente.setApellidos(detallesActualizados.getApellidos());
         clienteExistente.setCorreo(detallesActualizados.getCorreo());

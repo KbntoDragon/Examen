@@ -28,7 +28,6 @@ public class BoletaService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    // URL base del microservicio de inventario (configurable por entorno)
     @Value("${ms.inventario.url:http://localhost:8081}")
     private String inventarioUrl;
 
@@ -58,7 +57,6 @@ public class BoletaService {
     }
 
     public Boleta guardarBoleta(Boleta boleta) {
-        // Regla de negocio: el total no puede ser nulo ni negativo
         if (boleta.getTotal() == null || boleta.getTotal() < 0) {
             throw new IllegalArgumentException("El total de la boleta no puede ser negativo");
         }
@@ -73,11 +71,6 @@ public class BoletaService {
         return "Boleta eliminada con exito";
     }
 
-    /**
-     * Comunicación REST entre microservicios: antes de agregar un producto a la
-     * boleta se consulta al microservicio de inventario para validar que existe.
-     * Si el inventario responde 4xx, se traduce a un error de negocio claro.
-     */
     public Boleta agregarProducto(Integer boletaId, Integer productoId) {
         Boleta boleta = boletaRepository.findById(boletaId)
                 .orElseThrow(() -> new RuntimeException("Boleta no encontrada con id: " + boletaId));

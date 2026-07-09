@@ -40,7 +40,6 @@ public class ProductoController {
     @Autowired
     private ProductoAssembler assembler;
 
-    //Listar
     @Operation(summary = "Listar todos los productos",
                description = "Devuelve la lista completa de productos. Responde 204 si no hay ninguno.")
     @ApiResponses({
@@ -63,7 +62,7 @@ public class ProductoController {
 
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
-    //Buscar id
+
     @Operation(summary = "Buscar producto por id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Producto encontrado"),
@@ -78,7 +77,7 @@ public class ProductoController {
             return ResponseEntity.notFound().build();
         }
     }
-    //Buscar por codigobarra
+
     @Operation(summary = "Buscar productos por código de barras")
     @GetMapping(value = "/codigo/{codigoBarra}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<?> buscarPorCodigoBarra(@PathVariable String codigoBarra) {
@@ -94,7 +93,7 @@ public class ProductoController {
             return ResponseEntity.notFound().build();
         }
     }
-    //guardar producto
+
     @Operation(summary = "Crear un producto",
                description = "Valida que el precio sea mayor a 0 y el stock no sea negativo.")
     @ApiResponses({
@@ -111,7 +110,7 @@ public class ProductoController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
        }
     }
-    //eliminar por id
+
     @Operation(summary = "Eliminar producto por id")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarProducto(@PathVariable Integer id) {
@@ -123,7 +122,6 @@ public class ProductoController {
         }
     }
 
-    //buscar por nombre
     @Operation(summary = "Buscar productos por nombre (contiene, ignora mayúsculas)")
     @GetMapping(value = "/buscar", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<?> buscarPorNombre(@RequestParam String nombre){
@@ -139,7 +137,6 @@ public class ProductoController {
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
 
-    //sin Stock
     @Operation(summary = "Listar productos sin stock")
     @GetMapping(value = "/sin-stock", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<?> sinStock() {
@@ -155,7 +152,6 @@ public class ProductoController {
         return new ResponseEntity<>(collectionModel, HttpStatus.OK);
     }
 
-    //actualizar
     @Operation(summary = "Actualizar un producto existente")
     @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<?> editarProducto(@PathVariable Integer id, @RequestBody Producto producto){

@@ -105,7 +105,6 @@ class BoletaServiceTest {
 
     @Test
     void agregarProducto_cuandoProductoExiste_loAgregaALaBoleta() {
-        // Given: la boleta existe y el inventario responde con el producto (WebClient simulado)
         Boleta boleta = nuevaBoleta(1, 1000.0);
         boleta.setProductoIds(new ArrayList<>());
         when(boletaRepository.findById(1)).thenReturn(Optional.of(boleta));
@@ -120,10 +119,8 @@ class BoletaServiceTest {
                 .bodyToMono(ProductoDTO.class)
                 .block()).thenReturn(productoRemoto);
 
-        // When
         Boleta resultado = boletaService.agregarProducto(1, 2);
 
-        // Then
         assertThat(resultado.getProductoIds()).contains(2);
     }
 

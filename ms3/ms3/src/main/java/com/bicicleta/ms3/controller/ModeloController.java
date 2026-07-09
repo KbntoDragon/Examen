@@ -34,8 +34,8 @@ public class ModeloController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Listar todos los modelos")
-    public ResponseEntity<?> listarModelos() { // Coincide con ModeloAssembler
-        List<ModeloDTO> modelos = modeloService.obtenerModelos(); // Nota: En tu service escribiste 'obtainerModelos' o 'obtenerModelos', cámbialo según corresponda
+    public ResponseEntity<?> listarModelos() {
+        List<ModeloDTO> modelos = modeloService.obtenerModelos();
         if (modelos.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -52,7 +52,7 @@ public class ModeloController {
 
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Buscar un modelo por su ID")
-    public ResponseEntity<?> buscarModelo(@PathVariable Integer id) { // Coincide con ModeloAssembler
+    public ResponseEntity<?> buscarModelo(@PathVariable Integer id) {
         try {
             ModeloDTO dto = modeloService.obtenerModeloPorId(id);
             return ResponseEntity.ok(assembler.toModel(dto));
@@ -66,7 +66,6 @@ public class ModeloController {
     public ResponseEntity<?> registrarModelo(@Valid @RequestBody Modelo nuevoModelo) {
         try {
             Modelo modeloGuardado = modeloService.guardarModelo(nuevoModelo);
-            // Tu service no tiene el convertirADTO público, pero podemos buscarlo por ID para obtener el DTO estructurado
             ModeloDTO dto = modeloService.obtenerModeloPorId(modeloGuardado.getId());
             return new ResponseEntity<>(assembler.toModel(dto), HttpStatus.CREATED);
         } catch (Exception e) {

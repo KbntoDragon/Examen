@@ -1,5 +1,4 @@
 @echo off
-REM Capturamos la ruta raiz del script
 set "ROOT_DIR=%~dp0"
 
 echo Iniciando Eureka...

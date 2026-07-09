@@ -34,7 +34,7 @@ public class MarcaController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener todas las marcas")
-    public ResponseEntity<?> todasLasMarcas() { // Coincide con MarcaAssembler
+    public ResponseEntity<?> todasLasMarcas() {
         List<MarcaDTO> marcas = marcaService.obtenerMarcas();
         if (marcas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

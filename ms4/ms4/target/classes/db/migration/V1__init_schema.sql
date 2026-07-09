@@ -1,5 +1,3 @@
--- Esquema inicial del microservicio de personas (db_persona)
-
 CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(30) NOT NULL,

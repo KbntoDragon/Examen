@@ -34,7 +34,7 @@ public class ColorController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener todos los colores")
-    public ResponseEntity<?> todosLosColores() { // Coincide con ColorAssembler
+    public ResponseEntity<?> todosLosColores() {
         List<ColorDTO> colores = colorService.obtenerColores();
         if (colores.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -88,7 +88,6 @@ public class ColorController {
     @Operation(summary = "Editar parcialmente un color")
     public ResponseEntity<?> editarColor(@PathVariable Integer id, @RequestBody Color colorParcial) {
         try {
-            // Reutilizamos actualizarColor ya que tu Service maneja la edición de propiedades básicas
             Color colorEditado = colorService.actualizarColor(id, colorParcial);
             ColorDTO dto = colorService.convertirADTO(colorEditado);
             return ResponseEntity.ok(assembler.toModel(dto));

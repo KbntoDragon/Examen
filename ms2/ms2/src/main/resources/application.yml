@@ -55,8 +55,6 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    # Mantuve la lógica de tu PROD original combinada con el estándar nuevo.
-    # Si envías variables de entorno (Docker) las usará, sino usará la URL local por defecto.
     url: ${DB_URL:jdbc:mysql://localhost:3306/db_ventas_prod?createDatabaseIfNotExist=true}
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:''}

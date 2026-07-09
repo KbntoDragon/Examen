@@ -40,6 +40,5 @@ public class Repuesto {
     @Column(nullable = true, length = 100)
     private String codigoBarras;
 
-    //relacion microservicio boleta
     private Integer boleta_id;
 }

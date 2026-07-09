@@ -1,5 +1,3 @@
--- Esquema inicial del microservicio de inventario (db_inventario)
-
 CREATE TABLE productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre_producto VARCHAR(200) NOT NULL,

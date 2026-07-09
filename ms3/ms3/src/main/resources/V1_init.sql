@@ -1,6 +1,3 @@
-public class V1_init {
--- Esquema inicial del microservicio de bicicletas (db_bicicleta)
-
 CREATE TABLE marcas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
@@ -28,7 +25,6 @@ CREATE TABLE bicicletas (
     CONSTRAINT fk_bicicleta_modelo FOREIGN KEY (modelo_id) REFERENCES modelos (id)
 );
 
--- Relaciones ManyToMany
 CREATE TABLE bicicleta_color (
     bicicleta_id INT NOT NULL,
     color_id INT NOT NULL,
@@ -42,5 +38,3 @@ CREATE TABLE bicicleta_marca (
     CONSTRAINT fk_bm_bicicleta FOREIGN KEY (bicicleta_id) REFERENCES bicicletas (id),
     CONSTRAINT fk_bm_marca FOREIGN KEY (marca_id) REFERENCES marcas (id)
 );
-
-}

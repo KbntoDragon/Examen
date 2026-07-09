@@ -40,8 +40,5 @@ public class Producto {
     @Column(nullable = false, length = 100)
     private String codigoBarras;
 
-    /*@JsonIgnore
-    @OneToOne(mappedBy = "productos")
-    private Integer boletas;*/
     private Integer boleta_id;
 }

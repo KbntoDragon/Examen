@@ -1,5 +1,3 @@
--- Esquema inicial del microservicio de ventas (db_ventas)
-
 CREATE TABLE tipo_pagos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(255) NOT NULL
@@ -12,7 +10,6 @@ CREATE TABLE boletas (
     CONSTRAINT fk_boleta_tipopago FOREIGN KEY (TipoPago_id) REFERENCES tipo_pagos (id)
 );
 
--- Colecciones de ids referenciados desde otros microservicios (@ElementCollection)
 CREATE TABLE boletas_empleados (
     boleta_id INT NOT NULL,
     empleado_id INT,

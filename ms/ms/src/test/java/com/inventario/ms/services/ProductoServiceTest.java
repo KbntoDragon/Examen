@@ -41,31 +41,23 @@ class ProductoServiceTest {
 
     @Test
     void obtenerProductos_devuelveListaDeDTOs() {
-        // Given
         when(productoRepository.findAll())
                 .thenReturn(List.of(nuevoProducto(1, "Cadena", 5000.0, 10)));
-        // When
         List<ProductoDTO> resultado = productoService.obtenerProductos();
-        // Then
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getNombreProducto()).isEqualTo("Cadena");
     }
 
     @Test
     void obtenerProductoDTOPorId_cuandoExiste_devuelveDTO() {
-        // Given
         when(productoRepository.findById(1)).thenReturn(Optional.of(nuevoProducto(1, "Cadena", 5000.0, 10)));
-        // When
         ProductoDTO dto = productoService.obtenerProductoDTOPorId(1);
-        // Then
         assertThat(dto.getId()).isEqualTo(1);
     }
 
     @Test
     void obtenerProductoDTOPorId_cuandoNoExiste_lanzaExcepcion() {
-        // Given
         when(productoRepository.findById(99)).thenReturn(Optional.empty());
-        // When / Then
         assertThatThrownBy(() -> productoService.obtenerProductoDTOPorId(99))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("no encontrado");
@@ -73,21 +65,16 @@ class ProductoServiceTest {
 
     @Test
     void guardarProducto_conDatosValidos_persiste() {
-        // Given
         Producto p = nuevoProducto(null, "Cadena", 5000.0, 10);
         when(productoRepository.save(p)).thenReturn(nuevoProducto(1, "Cadena", 5000.0, 10));
-        // When
         Producto guardado = productoService.guardarProducto(p);
-        // Then
         assertThat(guardado.getId()).isEqualTo(1);
         verify(productoRepository).save(p);
     }
 
     @Test
     void guardarProducto_conPrecioInvalido_noPersisteYlanza() {
-        // Given
         Producto p = nuevoProducto(null, "Cadena", 0.0, 10);
-        // When / Then
         assertThatThrownBy(() -> productoService.guardarProducto(p))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("precio");
@@ -96,9 +83,7 @@ class ProductoServiceTest {
 
     @Test
     void guardarProducto_conStockNegativo_lanza() {
-        // Given
         Producto p = nuevoProducto(null, "Cadena", 5000.0, -1);
-        // When / Then
         assertThatThrownBy(() -> productoService.guardarProducto(p))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("stock");
@@ -106,45 +91,33 @@ class ProductoServiceTest {
 
     @Test
     void eliminarProducto_cuandoExiste_devuelveExito() {
-        // Given
         when(productoRepository.existsById(1)).thenReturn(true);
-        // When
         String mensaje = productoService.eliminarProducto(1);
-        // Then
         assertThat(mensaje).contains("exito");
         verify(productoRepository).deleteById(1);
     }
 
     @Test
     void eliminarProducto_cuandoNoExiste_noBorra() {
-        // Given
         when(productoRepository.existsById(99)).thenReturn(false);
-        // When
         String mensaje = productoService.eliminarProducto(99);
-        // Then
         assertThat(mensaje).contains("no encontrado");
         verify(productoRepository, never()).deleteById(any());
     }
 
     @Test
     void buscarPorNombreDTO_devuelveCoincidencias() {
-        // Given
         when(productoRepository.findByNombreProductoContainingIgnoreCase("cad"))
                 .thenReturn(List.of(nuevoProducto(1, "Cadena", 5000.0, 10)));
-        // When
         List<ProductoDTO> resultado = productoService.buscarPorNombreDTO("cad");
-        // Then
         assertThat(resultado).hasSize(1);
     }
 
     @Test
     void obtenerProductoSinStockDTO_filtraStockCero() {
-        // Given
         when(productoRepository.findByStock(0))
                 .thenReturn(List.of(nuevoProducto(2, "Pedal", 3000.0, 0)));
-        // When
         List<ProductoDTO> resultado = productoService.obtenerProductoSinStockDTO();
-        // Then
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getStock()).isZero();
     }

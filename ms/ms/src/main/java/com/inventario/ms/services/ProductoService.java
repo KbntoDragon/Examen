@@ -20,7 +20,6 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    // Convierte la entidad a su DTO de salida (no exponemos la entidad directamente)
     private ProductoDTO convertirADTO(Producto producto) {
         ProductoDTO dto = new ProductoDTO();
         dto.setId(producto.getId());
@@ -64,7 +63,7 @@ public class ProductoService {
     }
 
     public Producto guardarProducto(Producto producto) {
-        // Reglas de negocio del dominio inventario
+        
         if (producto.getPrecio() == null || producto.getPrecio() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a 0");
         }

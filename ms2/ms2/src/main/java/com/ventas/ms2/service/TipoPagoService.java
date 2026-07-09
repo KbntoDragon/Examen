@@ -45,7 +45,6 @@ public class TipoPagoService {
     }
 
     public TipoPago guardarTipoPago(TipoPago tipoPago) {
-        // Regla de negocio: el tipo de pago no puede venir vacío
         if (tipoPago.getTipo() == null || tipoPago.getTipo().isBlank()) {
             throw new IllegalArgumentException("El tipo de pago es obligatorio");
         }

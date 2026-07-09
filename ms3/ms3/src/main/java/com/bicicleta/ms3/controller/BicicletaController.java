@@ -34,7 +34,7 @@ public class BicicletaController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener todas las bicicletas", description = "Retorna una lista con todas las bicicletas registradas")
-    public ResponseEntity<?> listar() { // Se llama listar() para que coincida con tu Assembler
+    public ResponseEntity<?> listar() {
         List<BicicletaDTO> bicicletas = bicicletaService.obtenerTodas(); 
         if (bicicletas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -76,7 +76,6 @@ public class BicicletaController {
     @Operation(summary = "Actualizar la bicicleta completa", description = "Actualiza la bicicleta completa con sus atributos")
     public ResponseEntity<?> actualizarBicicleta(@Valid @RequestBody Bicicleta bicicleta, @PathVariable Integer id) {
         try {
-            // El servicio retorna Entidad, por lo que buscamos el DTO para el HATEOAS
             Bicicleta nuevaBici = bicicletaService.actualizarBicicleta(id, bicicleta);
             BicicletaDTO dto = bicicletaService.buscarPorId(nuevaBici.getId());
             return ResponseEntity.ok(assembler.toModel(dto));
