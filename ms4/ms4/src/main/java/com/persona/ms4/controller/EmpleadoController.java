@@ -43,8 +43,8 @@ public class EmpleadoController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener todos los empleados", description = "Se obtiene un listado de todos los empleados")
-    public ResponseEntity<?> todos() {
-        List<EntityModel<EmpleadoDTO>> empleados = empleadoService.findAll().stream()
+    public ResponseEntity<?> obtenerTodos() {
+        List<EntityModel<EmpleadoDTO>> empleados = empleadoService.obtenerTodos().stream()
                .map(assembler::toModel)
                .collect(Collectors.toList());
 
@@ -52,12 +52,12 @@ public class EmpleadoController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return ResponseEntity.ok(CollectionModel.of(empleados,
-                linkTo(methodOn(EmpleadoController.class).todos()).withSelfRel()));
+                linkTo(methodOn(EmpleadoController.class).obtenerTodos()).withSelfRel()));
     }
 
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener un Empleado por su ID", description = "Obtiene el Empleado por el ID ingresado")
-    public ResponseEntity<?> porId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         try {
             EmpleadoDTO dto = empleadoService.buscarPorId(id);
             return ResponseEntity.ok(assembler.toModel(dto));
@@ -67,31 +67,42 @@ public class EmpleadoController {
     }
 
     @GetMapping(value = "/nombres/{nombres}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Buscar Empleados por nombre", description = "Obtiene un listado de Empleados que coinciden con el nombre ingresado")
+    @Operation(summary = "Buscar Empleados por nombre", description = "Obtiene un listado de Empleados que existen con el nombre ingresado")
     public ResponseEntity<?> buscarPorNombres(@PathVariable String nombres) {
-        try {
-            List<EntityModel<EmpleadoDTO>> empleados = empleadoService.buscarPorNombre(nombres).stream()
-                  .map(empleadoService::convertirADTO)
-                  .map(assembler::toModel)
-                  .collect(Collectors.toList());
-            return ResponseEntity.ok(CollectionModel.of(empleados,
-                    linkTo(methodOn(EmpleadoController.class).buscarPorNombres(nombres)).withSelfRel(),
-                    linkTo(methodOn(EmpleadoController.class).todos()).withRel("empleados")));
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        List<EntityModel<EmpleadoDTO>> empleados = empleadoService.buscarPorNombres(nombres).stream()
+              .map(assembler::toModel)
+              .collect(Collectors.toList());
+
+        if (empleados.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        return ResponseEntity.ok(CollectionModel.of(empleados,
+                linkTo(methodOn(EmpleadoController.class).buscarPorNombres(nombres)).withSelfRel(),
+                linkTo(methodOn(EmpleadoController.class).obtenerTodos()).withRel("empleados")));
     }
 
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Agregar un Empleado al sistema", description = "Agrega un Empleado a la base de datos")
-    public ResponseEntity<?> registrar(@Valid @RequestBody Empleado empleado) {
+    public ResponseEntity<?> agregarEmpleado(@Valid @RequestBody Empleado empleado) {
         try {
             EmpleadoDTO dto = empleadoService.guardarEmpleado(empleado);
             return ResponseEntity
-                .created(linkTo(methodOn(EmpleadoController.class).porId(dto.getId())).toUri())
+                .created(linkTo(methodOn(EmpleadoController.class).buscarPorId(dto.getId())).toUri())
                 .body(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    @Operation(summary = "Eliminar un Empleado", description = "Elimina un Empleado de la base de datos")
+    public ResponseEntity<?> eliminarEmpleado(@PathVariable Integer id) {
+        String resultado = empleadoService.eliminar(id);
+        if (resultado.contains("exitosamente")) {
+            return new ResponseEntity<>(resultado, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -100,21 +111,10 @@ public class EmpleadoController {
     public ResponseEntity<?> actualizarEmpleado(@PathVariable Integer id, @Valid @RequestBody Empleado empleado) {
         try {
             empleado.setId(id);
-            Empleado actualizado = empleadoService.actualizarEmpleado(id, empleado);
-            return ResponseEntity.ok(assembler.toModel(empleadoService.convertirADTO(actualizado)));
+            EmpleadoDTO dto = empleadoService.actualizarEmpleado(id, empleado);
+            return ResponseEntity.ok(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Eliminar un Empleado", description = "Elimina un Empleado de la base de datos")
-    public ResponseEntity<?> eliminarEmpleado(@PathVariable Integer id) {
-        String resultado = empleadoService.eliminarPorId(id);
-        if (resultado.contains("exitosamente")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
     }
 }

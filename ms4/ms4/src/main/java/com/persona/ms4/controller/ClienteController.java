@@ -34,7 +34,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/clientes")
 @Tag(name = "Clientes", description = "Operaciones relacionadas con los Clientes")
 public class ClienteController {
-
+    
     @Autowired
     private ClienteService clienteService;
 
@@ -43,8 +43,8 @@ public class ClienteController {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener todos los Clientes", description = "Se obtiene un listado de todos los Clientes")
-    public ResponseEntity<?> todos() {
-        List<EntityModel<ClienteDTO>> clientes = clienteService.findAll().stream()
+    public ResponseEntity<?> obtenerTodos() {
+        List<EntityModel<ClienteDTO>> clientes = clienteService.obtenerTodos().stream()
                .map(assembler::toModel)
                .collect(Collectors.toList());
 
@@ -52,12 +52,12 @@ public class ClienteController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return ResponseEntity.ok(CollectionModel.of(clientes,
-                linkTo(methodOn(ClienteController.class).todos()).withSelfRel()));
+                linkTo(methodOn(ClienteController.class).obtenerTodos()).withSelfRel()));
     }
 
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Obtener un Cliente por su ID", description = "Obtiene el Cliente por el ID ingresado")
-    public ResponseEntity<?> porId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         try {
             ClienteDTO dto = clienteService.buscarPorId(id);
             return ResponseEntity.ok(assembler.toModel(dto));
@@ -66,43 +66,59 @@ public class ClienteController {
         }
     }
 
-    @GetMapping(value = "/correos/{correo}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Buscar Cliente por correo", description = "Obtiene el Cliente que existe con el correo ingresado")
-    public ResponseEntity<?> buscarPorCorreo(@PathVariable String correo) {
-        try {
-            ClienteDTO dto = clienteService.buscarPorCorreo(correo);
-            return ResponseEntity.ok(assembler.toModel(dto));
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    @GetMapping(value = "/nombres/{nombres}", produces = MediaTypes.HAL_JSON_VALUE)
+    @Operation(summary = "Buscar Clientes por nombre", description = "Obtiene un listado de Clientes que existen con el nombre ingresado")
+    public ResponseEntity<?> buscarPorNombres(@PathVariable String nombres) {
+        List<EntityModel<ClienteDTO>> clientes = clienteService.buscarPorNombres(nombres).stream()
+              .map(assembler::toModel)
+              .collect(Collectors.toList());
+
+        if (clientes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        return ResponseEntity.ok(CollectionModel.of(clientes,
+                linkTo(methodOn(ClienteController.class).buscarPorNombres(nombres)).withSelfRel(),
+                linkTo(methodOn(ClienteController.class).obtenerTodos()).withRel("clientes")));
     }
 
-    @GetMapping(value = "/nombres/{nombre}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Buscar Clientes por nombre", description = "Obtiene un listado de Clientes que coinciden con el nombre ingresado")
-    public ResponseEntity<?> buscarPorNombre(@PathVariable String nombre) {
-        try {
-            List<EntityModel<ClienteDTO>> clientes = clienteService.buscarPorNombre(nombre).stream()
-                  .map(clienteService::convertirADTO)
-                  .map(assembler::toModel)
-                  .collect(Collectors.toList());
-            return ResponseEntity.ok(CollectionModel.of(clientes,
-                    linkTo(methodOn(ClienteController.class).buscarPorNombre(nombre)).withSelfRel(),
-                    linkTo(methodOn(ClienteController.class).todos()).withRel("clientes")));
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    @GetMapping(value = "/correos/{correos}", produces = MediaTypes.HAL_JSON_VALUE)
+    @Operation(summary = "Buscar Clientes por correo", description = "Obtiene un listado de Clientes que existen con el correo ingresado")
+    public ResponseEntity<?> buscraPorCorreos(@PathVariable String correos) {
+        List<EntityModel<ClienteDTO>> clientes = clienteService.buscarPorCorreos(correos).stream()
+              .map(assembler::toModel)
+              .collect(Collectors.toList());
+
+        if (clientes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        return ResponseEntity.ok(CollectionModel.of(clientes,
+                linkTo(methodOn(ClienteController.class).buscraPorCorreos(correos)).withSelfRel(),
+                linkTo(methodOn(ClienteController.class).obtenerTodos()).withRel("clientes")));
     }
 
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     @Operation(summary = "Agregar un Cliente al sistema", description = "Agrega un Cliente a la base de datos")
-    public ResponseEntity<?> registrar(@Valid @RequestBody Cliente cliente) {
+    public ResponseEntity<?> agregarCliente(@Valid @RequestBody Cliente cliente) {
         try {
             ClienteDTO dto = clienteService.guardarCliente(cliente);
             return ResponseEntity
-                .created(linkTo(methodOn(ClienteController.class).porId(dto.getId())).toUri())
+                .created(linkTo(methodOn(ClienteController.class).buscarPorId(dto.getId())).toUri())
                 .body(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    @Operation(summary = "Eliminar un Cliente", description = "Elimina un Cliente de la base de datos")
+    public ResponseEntity<?> eliminarCliente(@PathVariable Integer id) {
+        String resultado = clienteService.eliminar(id);
+        if (resultado.contains("exitosamente")) {
+            return new ResponseEntity<>(resultado, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -115,17 +131,6 @@ public class ClienteController {
             return ResponseEntity.ok(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    @Operation(summary = "Eliminar un Cliente", description = "Elimina un Cliente de la base de datos")
-    public ResponseEntity<?> eliminarCliente(@PathVariable Integer id) {
-        String resultado = clienteService.eliminarPorId(id);
-        if (resultado.contains("exito")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
     }
 

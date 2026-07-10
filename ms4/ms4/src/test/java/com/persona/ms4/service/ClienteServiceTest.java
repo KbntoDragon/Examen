@@ -41,7 +41,7 @@ class ClienteServiceTest {
     @Test
     void findAll_devuelveDTOs() {
         when(clienteRepository.findAll()).thenReturn(List.of(nuevoCliente(1, "Ana", "ana@mail.cl")));
-        List<ClienteDTO> resultado = clienteService.findAll();
+        List<ClienteDTO> resultado = clienteService.obtenerTodos();
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getNombres()).isEqualTo("Ana");
     }
@@ -65,21 +65,21 @@ class ClienteServiceTest {
     @Test
     void buscarPorCorreo_noExiste_lanza() {
         when(clienteRepository.findByCorreo("x@mail.cl")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> clienteService.buscarPorCorreo("x@mail.cl"))
+        assertThatThrownBy(() -> clienteService.buscarPorCorreos("x@mail.cl"))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
     void buscarPorNombre_sinResultados_lanza() {
         when(clienteRepository.findByNombres("Zoe")).thenReturn(List.of());
-        assertThatThrownBy(() -> clienteService.buscarPorNombre("Zoe"))
+        assertThatThrownBy(() -> clienteService.buscarPorNombres("Zoe"))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
     void eliminarPorId_existe_borra() {
         when(clienteRepository.findById(1)).thenReturn(Optional.of(nuevoCliente(1, "Ana", "ana@mail.cl")));
-        assertThat(clienteService.eliminarPorId(1)).contains("exito");
+        assertThat(clienteService.eliminar(1)).contains("exito");
         verify(clienteRepository).delete(org.mockito.ArgumentMatchers.any(Cliente.class));
     }
 }

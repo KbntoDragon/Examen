@@ -5,7 +5,7 @@ Spring Boot 4.1.0 / Java 21, comunicación REST entre servicios, API Gateway,
 documentación Swagger/OpenAPI pruebas unitarias
 
 ## Integrantes
-- (Nombres: Erick, Sebastian, Nicolas Maulen — Nº de equipo)_
+- (Nombres: Erick Ponce, Bastian Echeverria, Nicolas Maulen — Nº de equipo)_
 
 ## Microservicios implementados
 

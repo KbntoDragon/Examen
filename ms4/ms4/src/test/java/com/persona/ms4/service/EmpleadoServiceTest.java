@@ -38,7 +38,7 @@ class EmpleadoServiceTest {
     @Test
     void findAll_devuelveDTOs() {
         when(empleadoRepository.findAll()).thenReturn(List.of(nuevoEmpleado(1, "Carla")));
-        List<EmpleadoDTO> resultado = empleadoService.findAll();
+        List<EmpleadoDTO> resultado = empleadoService.obtenerTodos();
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getNombres()).isEqualTo("Carla");
     }
@@ -60,7 +60,7 @@ class EmpleadoServiceTest {
     @Test
     void buscarPorNombre_sinResultados_lanza() {
         when(empleadoRepository.findByNombresContainingIgnoreCase("Zoe")).thenReturn(List.of());
-        assertThatThrownBy(() -> empleadoService.buscarPorNombre("Zoe"))
+        assertThatThrownBy(() -> empleadoService.buscarPorNombres("Zoe"))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -69,14 +69,14 @@ class EmpleadoServiceTest {
         when(empleadoRepository.findById(1)).thenReturn(Optional.of(nuevoEmpleado(1, "Viejo")));
         when(empleadoRepository.save(org.mockito.ArgumentMatchers.any(Empleado.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
-        Empleado actualizado = empleadoService.actualizarEmpleado(1, nuevoEmpleado(null, "Nuevo"));
+        EmpleadoDTO actualizado = empleadoService.actualizarEmpleado(1, nuevoEmpleado(null, "Nuevo"));
         assertThat(actualizado.getNombres()).isEqualTo("Nuevo");
     }
 
     @Test
     void eliminarPorId_existe_borra() {
         when(empleadoRepository.findById(1)).thenReturn(Optional.of(nuevoEmpleado(1, "Carla")));
-        assertThat(empleadoService.eliminarPorId(1)).contains("exito");
+        assertThat(empleadoService.eliminar(1)).contains("exito");
         verify(empleadoRepository).delete(org.mockito.ArgumentMatchers.any(Empleado.class));
     }
 }
